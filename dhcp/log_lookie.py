@@ -1,5 +1,4 @@
 import re
-
 from collections import defaultdict
 from pprint import pprint
 
@@ -24,7 +23,7 @@ syslog_re_s = r"""
 :                                #
 \s+                              #
 """
-syslog_re_s = ''.join([l.split('#')[0].strip() for l in syslog_re_s.split('\n')])
+syslog_re_s = ''.join([part.split('#')[0].strip() for part in syslog_re_s.split('\n')])
 print(syslog_re_s)
 syslog_re = re.compile(syslog_re_s)
 print(syslog_re)
@@ -48,10 +47,10 @@ context_id_re = re.compile(syslog_re_s + r"(?P<context_id>\d+).*")
 """
 
 dhcp_type_re = re.compile(r".*dnsmasq-dhcp\[(?P<server_id>\d+)\]:\s+(?P<context_id>\d+)\s+"
-    "(?P<type>(DHCPDISCOVER|DHCPOFFER|DHCPREQUEST|DHCPDECLINE|DHCPACK|DHCPNAK|DHCPRELEASE|DHCPINFORM))\(eth-local\)\s+"
-    "(?P<client_ip>\d+\.\d+\.\d+\.\d+)\s+"
-    "(?P<client_mac>\w+:\w+:\w+:\w+:\w+:\w+)"
-    "(?:\s*(?P<client_hostname>\w+))?", re.VERBOSE)
+    r"(?P<type>(DHCPDISCOVER|DHCPOFFER|DHCPREQUEST|DHCPDECLINE|DHCPACK|DHCPNAK|DHCPRELEASE|DHCPINFORM))\(eth-local\)\s+"
+    r"(?P<client_ip>\d+\.\d+\.\d+\.\d+)\s+"
+    r"(?P<client_mac>\w+:\w+:\w+:\w+:\w+:\w+)"
+    r"(?:\s*(?P<client_hostname>\w+))?", re.VERBOSE)
 
 # Feb 12 14:45:46 val2 dnsmasq-dhcp[215151]: 2603362573 vendor class: Linux ipconfig
 dhcp_vendor_re = re.compile(r".*dnsmasq-dhcp\[(?P<server_id>\d+)\]:\s+(?P<context_id>\d+)\s+"
@@ -112,7 +111,7 @@ def mac_maps():
     for line in open(fn):
         if (match:=dhcp_type_re.search(line)) is not None:
             context_id, client_mac, client_ip, client_hostname = match.group("context_id", "client_mac", "client_ip", "client_hostname")
-            mac_to_ID[client_mac].add(_id)
+            mac_to_ID[client_mac].add(context_id)
             mac_to_IP[client_mac].add(client_ip)
             if client_hostname is not None:
                 mac_to_hostname[client_mac].add(client_hostname)
@@ -120,7 +119,8 @@ def mac_maps():
 
 def gd():
     mac_to_ID, mac_to_IP, mac_to_hostname = mac_maps()
-    lines_by__id = group_lines_by_context_id()
+    # TODO: group_lines_by_context_id is not yet implemented
+    lines_by__id = {}  # noqa: F841
 
     #Let's see if there are more transactions for particular hosts:
     trans_per_mac = {k: len(v) for k, v in mac_to_ID.items()}
@@ -154,7 +154,7 @@ def get_log():
     is_weird(contexts)
 
 def main():
-    logs=get_log()
+    get_log()
 
 
 if __name__== "__main__":
