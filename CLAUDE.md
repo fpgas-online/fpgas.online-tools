@@ -20,10 +20,11 @@ Miscellaneous utility scripts for fpgas.online infrastructure monitoring and deb
 - `dhcp/dhcp-logger.py` -- DHCP event logger (called by dnsmasq dhcp-script option)
 - `dhcp/log_lookie.py` -- DHCP log analyzer (parses syslog for DHCP transactions, groups by context ID)
 - `netconsole/ncc.py` -- Netconsole client (runs on Pi, forwards kernel messages to server)
+- `fleet/` -- `fleet-sheet`: diff/apply board records against the FPGA Board Tracking sheet (DNA-keyed, conflicts never overwritten, human columns never written; a person always runs it). uv project with pytest.
 
 ### Usage
 
-These are standalone scripts, used ad-hoc or deployed by ansible. No packaging infrastructure.
+The dhcp/ and netconsole/ tools are standalone scripts, used ad-hoc or deployed by ansible. `fleet/` is a uv project (`uv run --project fleet fleet-sheet ...`).
 
 ## Conventions
 
