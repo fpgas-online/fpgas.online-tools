@@ -11,3 +11,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/ruff-action@v3
+
+  pytest-fleet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Test fleet-sheet
+        working-directory: fleet
+        run: uv run --group dev pytest -q
