@@ -44,7 +44,7 @@ def test_records_load_bringup_json_and_derive_switch_port(tmp_path):
     rec = {"fpga_device_dna": "0x0054b48664b04854", "switch": "sw-netgear-s3300-1 (sw2)", "port": 48}
     (tmp_path / "88a29e458577.json").write_text(json.dumps(rec))
     [got] = records.load([tmp_path])
-    assert got["switch_port"] == "sw-netgear-s3300-1 (sw2)/48"
+    assert got["switch_port"] == "sw2/48"
     assert got["_source"].endswith("88a29e458577.json")
 
 

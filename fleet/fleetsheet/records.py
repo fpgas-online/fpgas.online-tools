@@ -8,6 +8,7 @@ second source with the same field names.
 
 import json
 import pathlib
+import re
 
 from . import sheetmap
 
@@ -25,7 +26,9 @@ def load_file(path):
     rec = dict(rec)
     rec.setdefault("_source", str(path))
     if "switch_port" not in rec and rec.get("switch") and rec.get("port"):
-        rec["switch_port"] = f"{rec['switch']}/{rec['port']}"
+        # "sw-netgear-s3300-1 (sw2)" -> "sw2"; the alias is what the hostname uses (pi-sw2-p48)
+        m = re.search(r"\(([^)]+)\)", str(rec["switch"]))
+        rec["switch_port"] = f"{m.group(1) if m else rec['switch']}/{rec['port']}"
     if sheetmap.normalise_dna(rec.get("fpga_device_dna")) is None:
         raise RecordError(f"{path}: no usable fpga_device_dna")
     return rec
