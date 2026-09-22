@@ -18,11 +18,16 @@ This repository contains standalone diagnostic and monitoring tools used in the 
 
 - **`ncc.py`** -- Netconsole client that runs on a Pi to forward kernel messages over the network. Useful for capturing boot-time diagnostics and kernel panics from headless Pi nodes.
 
+### Fleet inventory (`fleet/`)
+
+- **`fleet-sheet`** -- Diffs board records (bring-up JSON, later the site's registration export) against the FPGA Board Tracking sheet and applies what a person accepts. Rows are keyed by FPGA Device DNA then RPi serial; identity conflicts are reported, never overwritten; human columns are never written. A `uv` project with tests; see [`fleet/README.md`](fleet/README.md).
+
 ## Directory Structure
 
 ```
 dhcp/         DHCP monitoring and analysis tools
 netconsole/   Netconsole client for kernel message forwarding
+fleet/        fleet-sheet: tracking-sheet diff/apply (uv project, tests)
 notes.txt     Operational notes
 ruff.toml     Python linter configuration
 ```
@@ -42,6 +47,7 @@ Refer to each script for specific arguments and options.
 ## Linting
 
 - Python: [ruff](https://docs.astral.sh/ruff/)
+- `fleet/`: pytest (`cd fleet && uv run --group dev pytest`)
 
 ## Related Repositories
 
