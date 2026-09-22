@@ -145,3 +145,17 @@ def test_apply_without_yes_asks_and_a_non_yes_writes_nothing(tmp_path, monkeypat
     assert cli.main(["apply", str(tmp_path / "r.json")]) == 2
     assert fake.written == []
     assert "nothing written" in capsys.readouterr().out
+
+
+def test_key_comes_from_the_flag_then_the_environment_and_has_no_default():
+    assert sheet_io.resolve_key("a.json", {"GOOGLE_APPLICATION_CREDENTIALS": "b.json"}) == "a.json"
+    assert sheet_io.resolve_key(None, {"GOOGLE_APPLICATION_CREDENTIALS": "b.json"}) == "b.json"
+    with pytest.raises(sheet_io.MissingKey, match="--key"):
+        sheet_io.resolve_key(None, {})
+
+
+def test_cli_without_a_key_exits_with_the_reason(tmp_path, monkeypatch):
+    (tmp_path / "r.json").write_text(json.dumps({"fpga_device_dna": "0x0054b48664b04854"}))
+    monkeypatch.delenv("GOOGLE_APPLICATION_CREDENTIALS", raising=False)
+    with pytest.raises(SystemExit, match="no service-account key"):
+        cli.main(["diff", str(tmp_path / "r.json")])

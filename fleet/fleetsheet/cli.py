@@ -25,7 +25,7 @@ def build_parser():
     p = argparse.ArgumentParser(
         prog="fleet-sheet", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    p.add_argument("--key", default=sheet_io.DEFAULT_KEY, help="service-account key file (default: %(default)s)")
+    p.add_argument("--key", help=f"service-account key file (default: ${sheet_io.KEY_ENV})")
     p.add_argument(
         "--tab", default="acorn", help="tab name or alias: " + ", ".join(f"{k}={v!r}" for k, v in TABS.items())
     )
@@ -49,7 +49,10 @@ def main(argv=None):
     args = build_parser().parse_args(argv)
     tab = TABS.get(args.tab, args.tab)
     recs = records.load(args.records)
-    sheet = sheet_io.Sheet(args.key)
+    try:
+        sheet = sheet_io.Sheet(args.key)
+    except sheet_io.MissingKey as e:
+        sys.exit(f"fleet-sheet: {e}")
     title, tabs = sheet.tabs()
     if tab not in tabs:
         sys.exit(f"no tab {tab!r} in {title!r}; tabs: {sorted(tabs)}")

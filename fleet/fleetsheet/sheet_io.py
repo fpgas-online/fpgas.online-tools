@@ -2,16 +2,30 @@
 """The only module that talks to Google Sheets.
 
 Reads a tab as (header, rows); writes exactly the cells a sheetmap.Result names.
-Credentials: a service-account key file. On ten64 that is
-/opt/gdoc2netcfg/service_account.json, readable by root only, so the CLI is run
-with sudo. The key never leaves the host and is never printed.
+Credentials: a Google service-account key file for an account with Editor on the
+sheet, from --key or GOOGLE_APPLICATION_CREDENTIALS. There is no default path:
+where the key lives is the operator's business, not this repository's. The key's
+contents are never printed.
 """
 
 import json
+import os
 
 SHEET_ID = "1CY38U9o4KPCZvfdblJWgpEBKLCnMhlQipjTqfH6QVOw"  # "fpgas.online - FPGA Board Tracking Info"
-DEFAULT_KEY = "/opt/gdoc2netcfg/service_account.json"
+KEY_ENV = "GOOGLE_APPLICATION_CREDENTIALS"
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+
+
+class MissingKey(Exception):
+    pass
+
+
+def resolve_key(key_path=None, environ=os.environ):
+    """The key file to use: an explicit path wins, then $GOOGLE_APPLICATION_CREDENTIALS."""
+    path = key_path or environ.get(KEY_ENV)
+    if not path:
+        raise MissingKey(f"no service-account key: pass --key PATH or set {KEY_ENV}")
+    return path
 
 
 def col_letter(index):
@@ -43,11 +57,11 @@ def header_writes(old_header, new_header, tab):
 
 
 class Sheet:
-    def __init__(self, key_path=DEFAULT_KEY, sheet_id=SHEET_ID):
+    def __init__(self, key_path=None, sheet_id=SHEET_ID):
         from google.oauth2 import service_account
         from googleapiclient.discovery import build
 
-        with open(key_path) as f:
+        with open(resolve_key(key_path)) as f:
             info = json.load(f)
         self.account = info.get("client_email", "?")
         creds = service_account.Credentials.from_service_account_info(info, scopes=SCOPES)

@@ -25,13 +25,14 @@ writes them only when someone runs `apply` and says `yes`.
 
 ## Use
 
-The service-account key lives on ten64 at `/opt/gdoc2netcfg/service_account.json`
-(root only), so run with `sudo`:
+It needs a Google service-account key file for an account that has Editor on
+the sheet. Pass it with `--key PATH`, or set `GOOGLE_APPLICATION_CREDENTIALS`.
+There is no default location, and the tool never prints the key.
 
 ```
 cd fleet
-sudo uv run --project . fleet-sheet diff  ~/github/fpgas-online/acorn-bringup-records/
-sudo uv run --project . fleet-sheet apply ~/github/fpgas-online/acorn-bringup-records/88a29e458577.json
+uv run --project . fleet-sheet --key KEY.json diff  records/
+uv run --project . fleet-sheet --key KEY.json apply records/88a29e458577.json
 ```
 
 `diff` writes nothing and exits 1 if there are conflicts. `apply` prints the
